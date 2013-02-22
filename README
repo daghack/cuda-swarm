@@ -1,5 +1,7 @@
-CORE
+OVERVIEW
+	An implementation of the Particle Swarm Optimization Local Search Algorithm implemented upon the GPU (to utilize massive parallelism) using NVIDIA's CUDA Architecture.
 
+CORE
 	Cuda PSO system
 		(Optimizing Neural Networks)
 	Graphics to optionally visualize particles moving around search space
