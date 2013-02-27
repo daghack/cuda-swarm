@@ -2,7 +2,7 @@
 #define PARTICLE_H
 
 #define DIM 1
-#define PARTICLE_COUNT 512
+#define PARTICLE_COUNT 64000
 
 typedef struct {
 	float pos[DIM];
