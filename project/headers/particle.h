@@ -4,7 +4,7 @@
 #include <curand_kernel.h>
 
 #define DIM 1
-#define PARTICLE_COUNT 64000
+#define PARTICLE_COUNT 32
 
 typedef struct {
 	float pos[DIM];

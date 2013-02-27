@@ -48,11 +48,29 @@ __device__ void update_best(particle * s, particle * d, unsigned int index) {
 
 __device__ void update(particle * s, particle * d, curandState_t * state, unsigned int index) {
 	for(unsigned int i = 0; i < DIM; i++) {
+		d[index].pos[i] = curand_uniform(&state[index]);
+/*
 		src_to_dest(s, d, index, i);
 		d[index].del[i] += inertial(s[index].del[i]);
 		d[index].del[i] += cognitive(s[index].pos[i], s[index].bsf[i]) * curand_uniform(&state[index]);
 		d[index].del[i] += social(s, d, index, i) * curand_uniform(&state[index]);
 		d[index].pos[i] += d[index].del[i];
+*/
+	}
+}
+
+__global__ void initBlock(blockData * p, unsigned int seed, float min, float max) {
+	unsigned int x_i = threadIdx.x + blockIdx.x * blockDim.x;
+	unsigned int y_i = threadIdx.y + blockIdx.y * blockDim.y;
+	unsigned i = x_i + y_i * blockDim.x * gridDim.x;
+	
+	if (i < PARTICLE_COUNT) {
+		curand_init(seed, i, 0, &(p->states[i]));
+		for (unsigned int j = 0; j < DIM; j++) {
+			float k = min + (max - min) * curand_uniform(&(p->states[i]));
+			p->s[i].pos[j] = k;
+			p->s[i].bsf[j] = k;
+		}
 	}
 }
 
@@ -66,7 +84,9 @@ __global__ void pso(blockData * p, bool sw) {
 	curandState_t * states = (curandState_t *)p->states;
 	
 	if (i < PARTICLE_COUNT) {
+		//s[i].pos[0] = i;
+		//d[i].pos[0] = i;
 		update(s, d, states, i);
-		update_best(s, d, i);
+		//update_best(s, d, i);
 	}
 }
