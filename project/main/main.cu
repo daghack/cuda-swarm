@@ -13,6 +13,8 @@ unsigned int blockSize = sizeof(blockData);
 const unsigned int SEED = 42;
 const float MININIT = -100.0;
 const float MAXINIT = 100.0;
+const float MINVEL = -10.0;
+const float MAXVEL = 10.0;
 
 __global__ void init_blockData(blockData * s, unsigned int seed) {
 	unsigned int x = threadIdx.x + blockIdx.x * blockDim.x;
@@ -31,7 +33,7 @@ void initialize() {
 	cudaMalloc((void **)&deviData, blockSize);
 	//CudaMemcpy(void * dest, void * host, size, direction)
 	cudaMemcpy(deviData, hostData, blockSize, cudaMemcpyHostToDevice);
-	initBlock<<<threadGrids, threadBlocks>>>(deviData, SEED, MININIT, MAXINIT);
+	initBlock<<<threadGrids, threadBlocks>>>(deviData, SEED, MININIT, MAXINIT, MINVEL, MAXVEL);
 	cudaMemcpy(hostData, deviData, blockSize, cudaMemcpyDeviceToHost);
 }
 
@@ -57,6 +59,7 @@ void printOutHostData() {
 		for(unsigned int j = 0; j < DIM; j++) {
 			printf("\t<dim %d: %.2f>\n", j, hostData->s[i].pos[j]);
 			printf("\t<bestDim %d: %.2f>\n", j, hostData->s[i].bsf[j]);
+			printf("\t<delta %d: %.2f>\n", j, hostData->s[i].del[j]);
 		}
 	}
 }
@@ -65,7 +68,7 @@ int main(int argc, char ** argv) {
 	printf("blockDataSize : %d\n", blockSize);
 	initialize();
 	printOutHostData();
-	runPSO(1);
+	runPSO(3);
 	copyResultsBack();
 	printOutHostData();
 	finalize();

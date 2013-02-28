@@ -3,10 +3,6 @@
 #include "pso.h"
 #include "../headers/max_func.h"
 
-#define W 1.0
-#define C1 1.0
-#define C2 1.0
-
 __device__ void src_to_dest(particle * s, particle * d, unsigned int index, unsigned int dim) {
 	d[index].pos[dim] = s[index].pos[dim];
 	d[index].del[dim] = 0.0;
@@ -61,7 +57,7 @@ __device__ void update(particle * s, particle * d, curandState_t * state, unsign
 	}
 }
 
-__global__ void initBlock(blockData * p, unsigned int seed, float min, float max) {
+__global__ void initBlock(blockData * p, unsigned int seed, float pos_min, float pos_max, float del_min, float del_max) {
 	unsigned int x_i = threadIdx.x + blockIdx.x * blockDim.x;
 	unsigned int y_i = threadIdx.y + blockIdx.y * blockDim.y;
 	unsigned i = x_i + y_i * blockDim.x * gridDim.x;
@@ -69,9 +65,10 @@ __global__ void initBlock(blockData * p, unsigned int seed, float min, float max
 	if (i < PARTICLE_COUNT) {
 		curand_init(seed, i, 0, &(p->states[i]));
 		for (unsigned int j = 0; j < DIM; j++) {
-			float k = min + (max - min) * curand_uniform(&(p->states[i]));
+			float k = (pos_max - pos_min) * curand_uniform(&(p->states[i])) + pos_min;
 			p->s[i].pos[j] = k;
 			p->s[i].bsf[j] = k;
+			p->s[i].del[j] = (del_max - del_min) * curand_uniform(&(p->states[i])) + del_min;
 		}
 	}
 }
