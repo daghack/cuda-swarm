@@ -9,6 +9,6 @@ __device__ float max_func(float * s) {
 	if (n == 0) {
 		return 1000.0;
 	}
-	return 1.0/sqrtf(n) * 100.0;
+	return (1.0/sqrtf(n)) * 100.0;
 	
 }

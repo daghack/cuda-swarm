@@ -13,6 +13,7 @@ OBJS = $(MAX_FUNC) $(PSO)
 OUT = pso_test
 
 all:
+	make clean
 	make main
 
 pso.o :
@@ -22,4 +23,4 @@ main : pso.o
 	$(CC) -o $(OUT) $(PSO) $(MAIN)
 
 clean :
-	\rm ./*/*.o $(OUT)
+	\rm -f ./*/*.o $(OUT)

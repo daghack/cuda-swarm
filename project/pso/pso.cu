@@ -7,23 +7,35 @@ __device__ void src_to_dest(particle * s, particle * d, unsigned int index, unsi
 	d[index].pos[dim] = s[index].pos[dim];
 	d[index].del[dim] = 0.0;
 	d[index].bsf[dim] = s[index].bsf[dim];
+	d[index].max_v = s[index].max_v;
 }
 
-__device__ float * global(particle * s, unsigned int i) {
+__device__ unsigned int global(particle * s, unsigned int i) {
 	unsigned int pu, pd;
-	float * a, * b, * c;
 	float am, bm, cm;
 
 	pu = (i + 1) % DIM;
 	pd = (i - 1) % DIM;
-	a = s[i].bsf;
-	am = max_func(a);
-	b = s[pu].bsf;
-	bm = max_func(b);
-	c = s[pd].bsf;
-	cm = max_func(c);
+	am = max_func(s[i].bsf);
+	bm = max_func(s[pu].bsf);
+	cm = max_func(s[pd].bsf);
 	
-	return (am > bm) ? (am > cm ? a : c) : (bm > cm ? b : c);
+	if (am > bm) {
+		if (am > cm) {
+			return i;
+		}
+		else {
+			return pd;
+		}
+	}
+	else {
+		if (bm > cm) {
+			return pu;
+		}
+		else {
+			return pd;
+		}
+	}
 }
 
 __device__ float inertial(float del) {
@@ -35,8 +47,8 @@ __device__ float cognitive(float pos, float bsf) {
 }
 
 __device__ float social(particle * s, particle * d, unsigned int i, unsigned int dim) {
-	float * k = global(s, i);
-	return C2 * (k[dim] - s[i].pos[dim]);
+	unsigned int best_index = global(s, i);
+	return C2 * (s[best_index].bsf[dim] - s[i].pos[dim]);
 }
 
 __device__ void update_best(particle * s, particle * d, unsigned int index) {
@@ -53,11 +65,22 @@ __device__ void update(particle * s, particle * d, curandState_t * state, unsign
 		d[index].del[i] += inertial(s[index].del[i]);
 		d[index].del[i] += cognitive(s[index].pos[i], s[index].bsf[i]) * curand_uniform(&state[index]);
 		d[index].del[i] += social(s, d, index, i) * curand_uniform(&state[index]);
-		d[index].pos[i] += d[index].del[i];
+		
+		float delp = d[index].del[i];
+		if(abs(d[index].del[i]) > delp) {
+			delp = d[index].max_v;
+			if(d[index].del[i] < 0) {
+				delp *= -1;
+			}
+			d[index].del[i] = delp;
+		}
+		
+		d[index].pos[i] += delp;
+
 	}
 }
 
-__global__ void initBlock(blockData * p, unsigned int seed, float pos_min, float pos_max, float del_min, float del_max) {
+__global__ void initBlock(blockData * p, unsigned int seed, float max_v, float pos_min, float pos_max, float del_min, float del_max) {
 	unsigned int x_i = threadIdx.x + blockIdx.x * blockDim.x;
 	unsigned int y_i = threadIdx.y + blockIdx.y * blockDim.y;
 	unsigned i = x_i + y_i * blockDim.x * gridDim.x;
@@ -69,6 +92,7 @@ __global__ void initBlock(blockData * p, unsigned int seed, float pos_min, float
 			p->s[i].pos[j] = k;
 			p->s[i].bsf[j] = k;
 			p->s[i].del[j] = (del_max - del_min) * curand_uniform(&(p->states[i])) + del_min;
+			p->s[i].max_v = max_v;
 		}
 	}
 }

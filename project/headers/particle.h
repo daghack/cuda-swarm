@@ -10,6 +10,7 @@ typedef struct {
 	float pos[DIM];
 	float del[DIM];
 	float bsf[DIM];
+	float max_v;
 } particle;
 typedef struct {
 	particle s[PARTICLE_COUNT];
