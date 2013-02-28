@@ -6,6 +6,9 @@ __device__ float max_func(float * s) {
 	for(unsigned int i = 0; i < DIM; i++) {
 		n += s[i] * s[i];
 	}
-	return sqrt(n);
+	if (n == 0) {
+		return 1000.0;
+	}
+	return 1.0/sqrtf(n) * 100.0;
 	
 }

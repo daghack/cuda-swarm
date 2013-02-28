@@ -13,17 +13,21 @@ __device__ void src_to_dest(particle * s, particle * d, unsigned int index, unsi
 	d[index].bsf[dim] = s[index].bsf[dim];
 }
 
-__device__ float global(particle * s, unsigned int i, unsigned int d) {
+__device__ float * global(particle * s, unsigned int i) {
 	unsigned int pu, pd;
-	float a, b, c;
+	float * a, * b, * c;
+	float am, bm, cm;
 
 	pu = (i + 1) % DIM;
 	pd = (i - 1) % DIM;
-	a = s[i].bsf[d];
-	b = s[pu].bsf[d];
-	c = s[pd].bsf[d];
+	a = s[i].bsf;
+	am = max_func(a);
+	b = s[pu].bsf;
+	bm = max_func(b);
+	c = s[pd].bsf;
+	cm = max_func(c);
 	
-	return (a > b) ? (a > c ? a : c) : (b > c ? b : c);
+	return (am > bm) ? (am > cm ? a : c) : (bm > cm ? b : c);
 }
 
 __device__ float inertial(float del) {
@@ -35,7 +39,8 @@ __device__ float cognitive(float pos, float bsf) {
 }
 
 __device__ float social(particle * s, particle * d, unsigned int i, unsigned int dim) {
-	return C2 * (global(s, i, dim) - s[i].pos[dim]);
+	float * k = global(s, i);
+	return C2 * (k[dim] - s[i].pos[dim]);
 }
 
 __device__ void update_best(particle * s, particle * d, unsigned int index) {
@@ -48,14 +53,11 @@ __device__ void update_best(particle * s, particle * d, unsigned int index) {
 
 __device__ void update(particle * s, particle * d, curandState_t * state, unsigned int index) {
 	for(unsigned int i = 0; i < DIM; i++) {
-		d[index].pos[i] = curand_uniform(&state[index]);
-/*
 		src_to_dest(s, d, index, i);
 		d[index].del[i] += inertial(s[index].del[i]);
 		d[index].del[i] += cognitive(s[index].pos[i], s[index].bsf[i]) * curand_uniform(&state[index]);
 		d[index].del[i] += social(s, d, index, i) * curand_uniform(&state[index]);
 		d[index].pos[i] += d[index].del[i];
-*/
 	}
 }
 
@@ -84,9 +86,7 @@ __global__ void pso(blockData * p, bool sw) {
 	curandState_t * states = (curandState_t *)p->states;
 	
 	if (i < PARTICLE_COUNT) {
-		//s[i].pos[0] = i;
-		//d[i].pos[0] = i;
 		update(s, d, states, i);
-		//update_best(s, d, i);
+		update_best(s, d, i);
 	}
 }

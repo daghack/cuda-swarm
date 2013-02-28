@@ -32,6 +32,7 @@ void initialize() {
 	//CudaMemcpy(void * dest, void * host, size, direction)
 	cudaMemcpy(deviData, hostData, blockSize, cudaMemcpyHostToDevice);
 	initBlock<<<threadGrids, threadBlocks>>>(deviData, SEED, MININIT, MAXINIT);
+	cudaMemcpy(hostData, deviData, blockSize, cudaMemcpyDeviceToHost);
 }
 
 void finalize() {
@@ -41,7 +42,6 @@ void finalize() {
 
 void runPSO(unsigned int iterations) {
 	for(unsigned int i = 0; i < iterations; i++) {
-		printf("Swapper status: %d\n", swapper);
 		pso<<<threadGrids, threadBlocks>>>(deviData, swapper);
 		swapper = !swapper;
 	}
@@ -56,6 +56,7 @@ void printOutHostData() {
 		printf("<particle %d>\n", i);
 		for(unsigned int j = 0; j < DIM; j++) {
 			printf("\t<dim %d: %.2f>\n", j, hostData->s[i].pos[j]);
+			printf("\t<bestDim %d: %.2f>\n", j, hostData->s[i].bsf[j]);
 		}
 	}
 }
@@ -64,7 +65,7 @@ int main(int argc, char ** argv) {
 	printf("blockDataSize : %d\n", blockSize);
 	initialize();
 	printOutHostData();
-	runPSO(101);
+	runPSO(1);
 	copyResultsBack();
 	printOutHostData();
 	finalize();
