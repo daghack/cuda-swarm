@@ -1,6 +1,7 @@
 #include <cuda.h>
 #include <stdio.h>
 #include "../pso/pso.h"
+#include "../graphics/graphics.h"
 
 dim3 threadGrids(128, 128, 1); // MAX NUMBER OF BLOCKS : 65535 ^ 3
 dim3 threadBlocks(512, 1, 1); // MAX NUMBER OF THREADS : 512
@@ -24,6 +25,7 @@ void initialize() {
 	cudaMemcpy(deviData, hostData, blockSize, cudaMemcpyHostToDevice);
 	initBlock<<<threadGrids, threadBlocks>>>(deviData, SEED, 10.0, MININIT, MAXINIT, MINVEL, MAXVEL);
 	cudaMemcpy(hostData, deviData, blockSize, cudaMemcpyDeviceToHost);
+	initGraphics();
 }
 
 void finalize() {
@@ -33,7 +35,7 @@ void finalize() {
 
 void runPSO(unsigned int iterations) {
 	for(unsigned int i = 0; i < iterations; i++) {
-		pso<<<threadGrids, threadBlocks>>>(deviData, swapper);
+		pso<<<threadGrids, threadBlocks>>>(deviData, NULL, swapper);
 		swapper = !swapper;
 	}
 }

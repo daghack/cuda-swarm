@@ -7,22 +7,28 @@ PSO_DIR = pso/
 MAX_FUNC = $(MAX_FUNC_DIR)max_func.o
 PSO = $(PSO_DIR)pso.o
 
+GRAPHICS_DIR = graphics/
+GRAPHICS = $(GRAPHICS_DIR)graphics.o
+
 MAIN_DIR = main/
 MAIN = $(MAIN_DIR)main.cu
-OBJS = $(MAX_FUNC) $(PSO)
+OBJS = $(MAX_FUNC) $(PSO) $(GRAPHICS)
 OUT = pso_test
 
-EXTERNAL = -lglut -lGL -lGLU -lgd
+EXTERNAL = -lGLEW -lglut -lGLU -lGL
 
 all:
 	make clean
 	make main
 
-pso.o :
-	$(CC) -c -o $(PSO) $(PSO_DIR)pso.cu
+graphics.o :
+	$(CC) -g -c -o $(GRAPHICS) $(GRAPHICS_DIR)graphics.cu
 
-main : pso.o
-	$(CC) -o $(OUT) $(PSO) $(MAIN) $(EXTERNAL)
+pso.o :
+	$(CC) -g -c -o $(PSO) $(PSO_DIR)pso.cu
+
+main : pso.o graphics.o
+	$(CC) -g -o $(OUT) $(PSO) $(MAIN) $(GRAPHICS) $(EXTERNAL)
 
 clean :
 	\rm -f ./*/*.o $(OUT)

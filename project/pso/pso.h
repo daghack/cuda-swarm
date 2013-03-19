@@ -13,4 +13,4 @@ __device__ void update(particle *, particle *, unsigned int);
 __device__ void update_best(particle *, particle *, unsigned int);
 
 __global__ void initBlock(blockData *, unsigned int, float, float, float, float, float);
-__global__ void pso(blockData *, bool);
+__global__ void pso(blockData *, float3 *, bool);
