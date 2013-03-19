@@ -3,7 +3,7 @@
 
 #include <curand_kernel.h>
 
-#define DIM 1
+#define DIM 2
 #define PARTICLE_COUNT 128
 
 typedef struct {

@@ -12,6 +12,8 @@ MAIN = $(MAIN_DIR)main.cu
 OBJS = $(MAX_FUNC) $(PSO)
 OUT = pso_test
 
+EXTERNAL = -lglut -lGL -lGLU -lgd
+
 all:
 	make clean
 	make main
@@ -20,7 +22,7 @@ pso.o :
 	$(CC) -c -o $(PSO) $(PSO_DIR)pso.cu
 
 main : pso.o
-	$(CC) -o $(OUT) $(PSO) $(MAIN)
+	$(CC) -o $(OUT) $(PSO) $(MAIN) $(EXTERNAL)
 
 clean :
 	\rm -f ./*/*.o $(OUT)
