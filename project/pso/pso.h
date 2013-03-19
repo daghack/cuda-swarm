@@ -1,6 +1,6 @@
 #define W 1.0  //INERTIAL
-#define C1 1.0 //COGNITIVE
-#define C2 1.0 //SOCIAL
+#define C1 1.2 //COGNITIVE
+#define C2 1.2 //SOCIAL
 
 #include "../headers/particle.h"
 

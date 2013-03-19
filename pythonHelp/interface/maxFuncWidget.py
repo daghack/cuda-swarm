@@ -1,13 +1,17 @@
+from sys import path
 from PyQt4.QtGui import QApplication, QWidget, QAction
 from PyQt4.QtGui import QPushButton, QTextEdit, QLabel, QLineEdit, QGridLayout
 
-def testFunc():
-	print "Hello World"
+path.append("../lang_compiler/")
+from lang_tokenizer import main_tokenizer
 
 class MaxFuncWidget(QWidget):
 	def a(self):
+		wtype = main_tokenizer()
+		w = wtype()
 		def k():
-			print self
+			for i in w.process(str(self.funcDefText.toPlainText())):
+				print i
 		return k
 	def __init__(self):
 		super(MaxFuncWidget, self).__init__()
@@ -21,6 +25,7 @@ class MaxFuncWidget(QWidget):
 		funcNameLine = QLineEdit()
 		dimCountLine = QLineEdit()
 		funcDefText = QTextEdit()
+		self.funcDefText = funcDefText
 		
 		compileButton = QPushButton('Compile')
 		compileButton.clicked.connect(self.a())

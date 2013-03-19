@@ -58,10 +58,18 @@ void printOutHostData() {
 }
 
 int main(int argc, char ** argv) {
+	unsigned int iterations = 0;
+	if (argc != 2 || atoi(argv[1]) == 0) {
+		printf("Usage : %s <Number of Iterations>\n", argv[0]);
+		exit(0);
+	}
+	else {
+		iterations = atoi(argv[1]);
+	}
 	printf("blockDataSize : %d\n", blockSize);
 	initialize();
 	printOutHostData();
-	runPSO(105);
+	runPSO(iterations);
 	copyResultsBack();
 	printOutHostData();
 	finalize();
