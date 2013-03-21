@@ -1,5 +1,6 @@
 #include <cuda.h>
 #include <stdio.h>
+#include <GL/glut.h>
 #include "../pso/pso.h"
 #include "../graphics/graphics.h"
 
@@ -74,6 +75,7 @@ int main(int argc, char ** argv) {
 	runPSO(iterations);
 	copyResultsBack();
 	printOutHostData();
+	glutMainLoop();
 	finalize();
 	return 0;
 }

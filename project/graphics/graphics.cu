@@ -5,7 +5,7 @@
 #include "graphics.h"
 #include "../headers/particle.h"
 
-void (*cudaFunc)();
+void (*cudaFunc)() = NULL;
 
 GLuint VAO;
 GLuint posBuffer;
@@ -41,11 +41,10 @@ void initGLDevice() {
 void initGLUT() {
 	int k = 0;
 	glutInit(&k, NULL);
-	glewExperimental = GL_TRUE;
-	glewInit();
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowSize(WINDOW_DIM, WINDOW_DIM);
 	glutCreateWindow("Window");
+	glewInit();
 }
 
 void registerResources() {
@@ -74,7 +73,9 @@ void display() {
 	
 	cudaGraphicsMapResources(1, &posCUDA, 0);
 	cudaGraphicsResourceGetMappedPointer((void**)&pos, &size, posCUDA);
-	cudaFunc();
+	if (cudaFunc) {
+		cudaFunc();
+	}
 	cudaGraphicsUnmapResources(1, &posCUDA, 0);
 
 	drawParticles();
@@ -88,4 +89,5 @@ void initGraphics() {
 	initGLUT();
 	createVBO();
 	registerResources();
+	glutDisplayFunc(display);
 }
