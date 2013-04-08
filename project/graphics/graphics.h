@@ -1,5 +1,5 @@
 #define WINDOW_DIM 500
-extern void (*cudaFunc)();
+extern void (*cudaFunc)(float3 *);
 
 void createVBO();
 void initGLDevice();

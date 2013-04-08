@@ -2,10 +2,11 @@
 #include <GL/glut.h>
 #include <cuda.h>
 #include <cuda_gl_interop.h>
+#include <stdio.h>
 #include "graphics.h"
 #include "../headers/particle.h"
 
-void (*cudaFunc)() = NULL;
+void (*cudaFunc)(float3 *) = NULL;
 
 GLuint VAO;
 GLuint posBuffer;
@@ -53,7 +54,7 @@ void registerResources() {
 	cudaGraphicsGLRegisterBuffer(&posCUDA, posBuffer, cudaGraphicsRegisterFlagsNone);
 	cudaGraphicsMapResources(1, &posCUDA, 0);
 	cudaGraphicsResourceGetMappedPointer((void**)&pos, &size, posCUDA);
-	cudaMemset((void*)pos, 0, PARTICLE_COUNT * sizeof(float4));
+	cudaMemset((void*)pos, 0, PARTICLE_COUNT * sizeof(float3));
 	cudaGraphicsUnmapResources(1, &posCUDA, 0);
 }
 
@@ -66,6 +67,7 @@ void drawParticles() {
 	glDrawArrays(GL_POINTS, 0, PARTICLE_COUNT);
 	glDisableVertexAttribArray(0);
 	glBindVertexArray(0);
+	glutPostRedisplay();
 }
 
 void display() {
@@ -74,7 +76,7 @@ void display() {
 	cudaGraphicsMapResources(1, &posCUDA, 0);
 	cudaGraphicsResourceGetMappedPointer((void**)&pos, &size, posCUDA);
 	if (cudaFunc) {
-		cudaFunc();
+		cudaFunc(pos);
 	}
 	cudaGraphicsUnmapResources(1, &posCUDA, 0);
 
