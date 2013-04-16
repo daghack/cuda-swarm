@@ -97,7 +97,7 @@ __global__ void initBlock(blockData * p, unsigned int seed, float max_v, float p
 	}
 }
 
-__global__ void pso(blockData * p, float3 * k, bool sw) {
+__global__ void pso(blockData * p, bool sw) {
 	unsigned int x_i = threadIdx.x + blockIdx.x * blockDim.x;
 	unsigned int y_i = threadIdx.y + blockIdx.y * blockDim.y;
 	unsigned i = x_i + y_i * blockDim.x * gridDim.x;
@@ -109,10 +109,5 @@ __global__ void pso(blockData * p, float3 * k, bool sw) {
 	if (i < PARTICLE_COUNT) {
 		update(s, d, states, i);
 		update_best(s, d, i);
-		if (DIM == 2 && k) {
-			k[i].x = d[i].pos[0];
-			k[i].y = d[i].pos[1];
-			k[i].z = max_func(s[i].pos);
-		}
 	}
 }

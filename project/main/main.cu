@@ -1,9 +1,8 @@
-#include <cuda.h>
-#include <stdio.h>
-#include <GL/glut.h>
+//#include <cuda.h>
+//#include <stdio.h>
+#include "../wrapper_classes/Swarm.h"
+/*
 #include "../pso/pso.h"
-#include "../graphics/graphics.h"
-
 dim3 threadGrids(128, 128, 1); // MAX NUMBER OF BLOCKS : 65535 ^ 3
 dim3 threadBlocks(512, 1, 1); // MAX NUMBER OF THREADS : 512
 
@@ -34,7 +33,7 @@ void printOutHostData() {
 }
 
 void runSingle(float3 * pos) {
-	pso<<<threadGrids, threadBlocks>>>(deviData, pos, swapper);
+	pso<<<threadGrids, threadBlocks>>>(deviData, swapper);
 	swapper = !swapper;
 	cudaMemcpy(hostData, deviData, blockSize, cudaMemcpyDeviceToHost);
 	printOutHostData();
@@ -44,13 +43,11 @@ void initialize() {
 	hostData = (blockData *)malloc(blockSize);
 	memset(hostData, 0, blockSize);
 	cudaMalloc((void **)&deviData, blockSize);
-	cudaFunc = &runSingle;
 	//CudaMemcpy(void * dest, void * src, size, direction)
 	cudaMemcpy(deviData, hostData, blockSize, cudaMemcpyHostToDevice);
 	initBlock<<<threadGrids, threadBlocks>>>(deviData, SEED, 10.0, MININIT, MAXINIT, MINVEL, MAXVEL);
 	cudaMemcpy(hostData, deviData, blockSize, cudaMemcpyDeviceToHost);
 	printOutHostData();
-	initGraphics();
 }
 
 void finalize() {
@@ -60,7 +57,7 @@ void finalize() {
 
 void runPSO(unsigned int iterations) {
 	for(unsigned int i = 0; i < iterations; i++) {
-		pso<<<threadGrids, threadBlocks>>>(deviData, NULL, swapper);
+		pso<<<threadGrids, threadBlocks>>>(deviData, swapper);
 		swapper = !swapper;
 	}
 }
@@ -68,11 +65,10 @@ void runPSO(unsigned int iterations) {
 void copyResultsBack() {
 	cudaMemcpy(hostData, deviData, blockSize, cudaMemcpyDeviceToHost);
 }
-
+*/
 int main(int argc, char ** argv) {
-	initialize();
-	printOutHostData();
-	glutMainLoop();
-	finalize();
+	Swarm a;
+	//initialize();
+	//printOutHostData();
 	return 0;
 }
