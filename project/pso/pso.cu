@@ -3,13 +3,20 @@
 #include "pso.h"
 #include "../headers/max_func.h"
 
+__device__ float map_wrapper(float * s, map f) {
+	float toret = 0;
+	for(unsigned int i = 0; i < DIM; i++) {
+		toret += f(s[i]);
+	}
+	return toret;
+}
+
 __device__ void src_to_dest(particle * s, particle * d, unsigned int index, unsigned int dim) {
 	d[index].pos[dim] = s[index].pos[dim];
 	d[index].del[dim] = 0.0;
 	d[index].bsf[dim] = s[index].bsf[dim];
 	d[index].max_v = s[index].max_v;
 }
-
 __device__ unsigned int global(particle * s, unsigned int i) {
 	unsigned int pu, pd;
 	float am, bm, cm;
@@ -19,6 +26,60 @@ __device__ unsigned int global(particle * s, unsigned int i) {
 	am = max_func(s[i].bsf);
 	bm = max_func(s[pu].bsf);
 	cm = max_func(s[pd].bsf);
+	
+	if (am > bm) {
+		if (am > cm) {
+			return i;
+		}
+		else {
+			return pd;
+		}
+	}
+	else {
+		if (bm > cm) {
+			return pu;
+		}
+		else {
+			return pd;
+		}
+	}
+}
+__device__ unsigned int global(particle * s, unsigned int i, map f) {
+	unsigned int pu, pd;
+	float am, bm, cm;
+
+	pu = (i + 1) % DIM;
+	pd = (i - 1) % DIM;
+	am = map_wrapper(s[i].bsf, f);
+	bm = map_wrapper(s[pu].bsf, f);
+	cm = map_wrapper(s[pd].bsf, f);
+	
+	if (am > bm) {
+		if (am > cm) {
+			return i;
+		}
+		else {
+			return pd;
+		}
+	}
+	else {
+		if (bm > cm) {
+			return pu;
+		}
+		else {
+			return pd;
+		}
+	}
+}
+__device__ unsigned int global(particle * s, unsigned int i, fold f) {
+	unsigned int pu, pd;
+	float am, bm, cm;
+
+	pu = (i + 1) % DIM;
+	pd = (i - 1) % DIM;
+	am = f(s[i].bsf);
+	bm = f(s[pu].bsf);
+	cm = f(s[pd].bsf);
 	
 	if (am > bm) {
 		if (am > cm) {
@@ -53,6 +114,20 @@ __device__ float social(particle * s, particle * d, unsigned int i, unsigned int
 
 __device__ void update_best(particle * s, particle * d, unsigned int index) {
 	if (max_func(s[index].pos) > max_func(s[index].bsf)) {
+		for(unsigned int i = 0; i < DIM; i++) {
+			d[index].bsf[i] = s[index].pos[i];
+		}
+	}
+}
+__device__ void update_best(particle * s, particle * d, unsigned int index, map f) {
+	if (map_wrapper((s[index].pos), f) > map_wrapper(s[index].bsf, f)) {
+		for(unsigned int i = 0; i < DIM; i++) {
+			d[index].bsf[i] = s[index].pos[i];
+		}
+	}
+}
+__device__ void update_best(particle * s, particle * d, unsigned int index, fold f) {
+	if (f(s[index].pos) > f(s[index].bsf)) {
 		for(unsigned int i = 0; i < DIM; i++) {
 			d[index].bsf[i] = s[index].pos[i];
 		}
@@ -109,5 +184,33 @@ __global__ void pso(blockData * p, bool sw) {
 	if (i < PARTICLE_COUNT) {
 		update(s, d, states, i);
 		update_best(s, d, i);
+	}
+}
+__global__ void pso(blockData * p, bool sw, fold f) {
+	unsigned int x_i = threadIdx.x + blockIdx.x * blockDim.x;
+	unsigned int y_i = threadIdx.y + blockIdx.y * blockDim.y;
+	unsigned i = x_i + y_i * blockDim.x * gridDim.x;
+	
+	particle * s = sw ? (particle *)p->s : (particle *)p->d;
+	particle * d = sw ? (particle *)p->d : (particle *)p->s;
+	curandState_t * states = (curandState_t *)p->states;
+	
+	if (i < PARTICLE_COUNT) {
+		update(s, d, states, i);
+		update_best(s, d, i, f);
+	}
+}
+__global__ void pso(blockData * p, bool sw, map f) {
+	unsigned int x_i = threadIdx.x + blockIdx.x * blockDim.x;
+	unsigned int y_i = threadIdx.y + blockIdx.y * blockDim.y;
+	unsigned i = x_i + y_i * blockDim.x * gridDim.x;
+	
+	particle * s = sw ? (particle *)p->s : (particle *)p->d;
+	particle * d = sw ? (particle *)p->d : (particle *)p->s;
+	curandState_t * states = (curandState_t *)p->states;
+	
+	if (i < PARTICLE_COUNT) {
+		update(s, d, states, i);
+		update_best(s, d, i, f);
 	}
 }

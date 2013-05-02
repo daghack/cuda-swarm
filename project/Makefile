@@ -19,13 +19,13 @@ all:
 	make main
 
 pso.o :
-	$(CC) -g -c -o $(PSO) $(PSO_DIR)pso.cu
+	$(CC) -g -c -gencode arch=compute_20,code=sm_20 -o $(PSO) $(PSO_DIR)pso.cu
 
 Swarm.o : pso.o
 	$(CC) -g -c -o $(SWARM) $(WRAPPERS)Swarm.cu
 
 main : pso.o Swarm.o
-	$(CC) -g -o $(OUT) $(OBJS) $(MAIN)
+	$(CC) -g -gencode arch=compute_20,code=sm_20 -o $(OUT) $(OBJS) $(MAIN)
 
 clean :
 	\rm -f ./*/*.o $(OUT)

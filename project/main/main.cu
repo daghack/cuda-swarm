@@ -66,8 +66,21 @@ void copyResultsBack() {
 	cudaMemcpy(hostData, deviData, blockSize, cudaMemcpyDeviceToHost);
 }
 */
+__device__ float f1(float * a) {
+	float n = 0.0;
+	for(unsigned int i = 0; i < DIM; i++) {
+		n += a[i] * a[i];
+	}
+	return (1.0/(sqrtf(n)+1)) * 100.0;
+}
+
+__device__ fold k = f1;
+
 int main(int argc, char ** argv) {
-	Swarm a;
+	Swarm<fold> a(43, 10.0, -100.0, 100.0, -10.0, 10.0, k);
+	a.printCurrent();
+	a.runNIterations(10000);
+	a.printCurrent();
 	//initialize();
 	//printOutHostData();
 	return 0;
