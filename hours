@@ -1,28 +1,26 @@
 Research Into Possible Senior Projects - 2h
-Beginning Research into Cuda - 3h
+Beginning Research into Cuda - 4h
 Beginning Research into PSO - 4h
-Research Random Numbers in Cuda - 4h
-
-Understanding Cuda and OpenGL interoptibility - 5h
-Drafting PSO scheme - 1h
-Beginning Research into ANN - 1h
-
-Finish backbone of PSO system - 4h
-Refactor PSO Code - 3h
-Refactor PSO Code P2 - 2h
-Refactor PSO Code P3 - 2h
-Create Makefile Good - 1h
+Research Random Numbers in Cuda - 6h
+Understanding Cuda and OpenGL interoptibility - 8h
+Drafting PSO scheme - 2h
+Beginning Research into ANN - 2h
+Finish backbone of PSO system - 5h
+Refactor PSO Code - 5h
+Refactor PSO Code P2 - 4h
+Refactor PSO Code P3 - 4h
+Create Makefile Good - 2h
 Begin implementing main - 3h
-Tie in Random Numbers - 3h
+Tie in Random Numbers - 6h
 Debugging :( - 10h
-Velocity Clamping - 2h
+Velocity Clamping - 4h
 Python Gui started - 2h
 Pluggin in Tokenizer - 1h
 Researching Image Lib - 3h
-First attempt at plugging in - 1h
+First attempt at plugging in - 2h
 Tying in OpenGL interopt, and failing - 5h
 Seeing success on OpenGL ineropt! - 3h
-Another Brick wall in the visualization - 2h
+Another Brick wall in the visualization - 5h
 Researching Linear Regression - 5h
 Researching Polynomial Regression - 5h
 Researching Gradient Descent - 2h
@@ -31,3 +29,4 @@ Began setting up for Linear Regression - 1h
 Began writing wrapper classes - 1h
 Moved interface into Swarm Class - 5h
 Made generic function pointers - 12h
+Added boiler plate for linear regression - 6h

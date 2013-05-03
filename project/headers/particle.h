@@ -3,8 +3,8 @@
 
 #include <curand_kernel.h>
 
-#define DIM 2
-#define PARTICLE_COUNT 128
+#define DIM 3
+#define PARTICLE_COUNT 1024
 
 typedef struct {
 	float pos[DIM];

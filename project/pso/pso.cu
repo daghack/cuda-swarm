@@ -214,3 +214,67 @@ __global__ void pso(blockData * p, bool sw, map f) {
 		update_best(s, d, i, f);
 	}
 }
+////////////////////////////////////////////////////////////////////////////////////////////
+__device__ float linear_regression_cost(float * s, float2 * f, unsigned int c) {
+	float cost = 0.0;
+	for(unsigned int p = 0; p < c; p++) {
+		float y_prime = 0.0;
+		float x_prime = 1.0;
+		for(unsigned int i = 0; i < DIM; i++) {
+			y_prime += x_prime * s[i];
+			x_prime *= f[p].x;
+		}
+		float t_c = y_prime - f[p].y;
+		cost += t_c * t_c;
+	}
+	return cost/(2 * c);
+}
+
+__device__ void update_best(particle * s, particle * d, unsigned int index, float2 * f, unsigned int c) {
+	if (linear_regression_cost(s[index].pos, f, c) > linear_regression_cost(s[index].bsf, f, c)) {
+		for(unsigned int i = 0; i < DIM; i++) {
+			d[index].bsf[i] = s[index].pos[i];
+		}
+	}
+}
+__device__ unsigned int global(particle * s, unsigned int i, float2 * f, unsigned int c) {
+	unsigned int pu, pd;
+	float am, bm, cm;
+
+	pu = (i + 1) % DIM;
+	pd = (i - 1) % DIM;
+	am = linear_regression_cost(s[i].bsf, f, c);
+	bm = linear_regression_cost(s[pu].bsf, f, c);
+	cm = linear_regression_cost(s[pd].bsf, f, c);
+	
+	if (am > bm) {
+		if (am > cm) {
+			return i;
+		}
+		else {
+			return pd;
+		}
+	}
+	else {
+		if (bm > cm) {
+			return pu;
+		}
+		else {
+			return pd;
+		}
+	}
+}
+__global__ void pso(blockData *p, bool sw, float2 * f, unsigned int c) {
+	unsigned int x_i = threadIdx.x + blockIdx.x * blockDim.x;
+	unsigned int y_i = threadIdx.y + blockIdx.y * blockDim.y;
+	unsigned i = x_i + y_i * blockDim.x * gridDim.x;
+	
+	particle * s = sw ? (particle *)p->s : (particle *)p->d;
+	particle * d = sw ? (particle *)p->d : (particle *)p->s;
+	curandState_t * states = (curandState_t *)p->states;
+	
+	if (i < PARTICLE_COUNT) {
+		update(s, d, states, i);
+		update_best(s, d, i, f, c);
+	}
+}

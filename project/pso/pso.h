@@ -35,3 +35,10 @@ __device__ unsigned int global(particle *, unsigned int, fold);
 __device__ void update_best(particle *, particle *, curandState_t *, unsigned int, fold);
 __global__ void pso(blockData *, bool, fold);
 
+//--------------------------------------------------------------------------------------------------------//
+//LINEAR REGRESSION
+//--------------------------------------------------------------------------------------------------------//
+__global__ void pso(blockData *, bool, float2 *, unsigned int);
+__device__ void update_best(particle *, particle *, curandState_t *, unsigned int, float2 *, unsigned int);
+__device__ unsigned int global(particle *, unsigned int, fold);
+__device__ float linear_regression_cost(particle *, float2 *, unsigned int);
